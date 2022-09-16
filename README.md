@@ -34,3 +34,10 @@ A visual playground to build Neural Networks. This playground provides you with 
 ## Contribution
 
 Contribution of any kind is appreciated. :)
+
+## Progress
+
+- [x] Implemented basic drag and drop features
+- [ ] Implement on select to custom nodes
+- [ ] Create a dynamic form object
+- [ ] Implement input object for linear and conv2d layers 

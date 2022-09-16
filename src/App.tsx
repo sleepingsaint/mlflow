@@ -1,11 +1,11 @@
-import MLFlowContainer from "components/MLFlowContainer";
+import Layout from "components/Layout";
 import { MLFlowContextProvider } from "context/MLFlowContext";
 
 function App() {
   return (
     <div className="App">
       <MLFlowContextProvider>
-        <MLFlowContainer />
+        <Layout />
       </MLFlowContextProvider>
     </div>
   );

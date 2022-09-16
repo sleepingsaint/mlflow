@@ -45,6 +45,8 @@ export const MLFlowContextProvider: React.FC<React.HTMLAttributes<HTMLDivElement
     };
 
     const onConnect = (connection: Connection) => {
+        // how to change the connection to smoothstep (rectangular connection)
+        // setEdges((_edges) => addEdge({...connection, type: "smoothstep"}, _edges));
         setEdges((_edges) => addEdge(connection, _edges));
     };
 

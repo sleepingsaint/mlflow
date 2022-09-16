@@ -1,30 +1,66 @@
-import { useMemo } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import { useMLFlow } from "hooks/useMLFlow";
 import { modules } from "components/modules";
-import ReactFlow, { MiniMap, Controls, Background, Node } from "react-flow-renderer";
+import ReactFlow, {
+  MiniMap,
+  Controls,
+  Background,
+  ReactFlowProvider,
+  ReactFlowInstance,
+} from "react-flow-renderer";
+import { getNewNode } from "utils";
 
-const MLFlowContainer = () => {
+const MLFlowContainer: React.FC<React.HTMLAttributes<HTMLDivElement>> = (props) => {
+  const reactFlowWrapper = useRef<HTMLDivElement>(null);
+  const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance>();
   const nodeTypes = useMemo(() => modules, []);
   const { setNodes, setEdges, ...reactFlowProps } = useMLFlow();
 
-  const handleAddNode = () => {
-    const node: Node<any> = {
-      id: Math.random().toString(),
-      position: { x: 100, y: 100 },
-      data: {
-        label: "label",
-      },
-    };
-    setNodes((_nodes) => [..._nodes, node]);
-  };
+  const onDragOver = useCallback((event: React.DragEvent) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+  }, []);
+
+  const onDrop = useCallback(
+    (event: React.DragEvent) => {
+      event.preventDefault();
+
+      if (reactFlowWrapper && reactFlowWrapper.current && reactFlowInstance) {
+        const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
+        const type = event.dataTransfer.getData("application/reactflow");
+
+        // check if the dropped element is valid
+        if (typeof type === "undefined" || !type) {
+          return;
+        }
+
+        const position = reactFlowInstance.project({
+          x: event.clientX - reactFlowBounds.left,
+          y: event.clientY - reactFlowBounds.top,
+        });
+
+        const newNode = getNewNode(type, position);
+        setNodes(nds => [...nds, newNode]);
+      }
+    },
+    [reactFlowInstance]
+  );
+
   return (
-    <div style={{ width: "100vw", height: "100vh" }}>
-      <button onClick={handleAddNode}>Click Me</button>
-      <ReactFlow nodeTypes={nodeTypes} {...reactFlowProps}>
-        <MiniMap />
-        <Controls />
-        <Background />
-      </ReactFlow>
+    <div {...props} ref={reactFlowWrapper}>
+      <ReactFlowProvider>
+        <ReactFlow
+          nodeTypes={nodeTypes}
+          {...reactFlowProps}
+          onDrop={onDrop}
+          onDragOver={onDragOver}
+          onInit={setReactFlowInstance}
+        >
+          <MiniMap />
+          <Controls />
+          <Background />
+        </ReactFlow>
+      </ReactFlowProvider>
     </div>
   );
 };
