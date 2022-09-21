@@ -1,20 +1,14 @@
 import React, { useCallback, useMemo, useRef, useState } from "react";
-import { useMLFlow } from "hooks/useMLFlow";
+import { useMLFlowStore } from "hooks/useMLFlowStore";
 import { modules } from "components/modules";
-import ReactFlow, {
-  MiniMap,
-  Controls,
-  Background,
-  ReactFlowProvider,
-  ReactFlowInstance,
-} from "react-flow-renderer";
+import ReactFlow, { MiniMap, Controls, Background, ReactFlowInstance } from "react-flow-renderer";
 import { getNewNode } from "utils";
 
 const MLFlowContainer: React.FC<React.HTMLAttributes<HTMLDivElement>> = (props) => {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance>();
   const nodeTypes = useMemo(() => modules, []);
-  const { setNodes, setEdges, ...reactFlowProps } = useMLFlow();
+  const {nodes, setNodes, setSelectedNodeId, edges, onNodesChange, onEdgesChange, onConnect} = useMLFlowStore()
 
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
@@ -40,7 +34,8 @@ const MLFlowContainer: React.FC<React.HTMLAttributes<HTMLDivElement>> = (props) 
         });
 
         const newNode = getNewNode(type, position);
-        setNodes(nds => [...nds, newNode]);
+        setNodes([...nodes, newNode]);
+        // setNodes(newNode => [...nodes, newNode]);
       }
     },
     [reactFlowInstance]
@@ -48,19 +43,24 @@ const MLFlowContainer: React.FC<React.HTMLAttributes<HTMLDivElement>> = (props) 
 
   return (
     <div {...props} ref={reactFlowWrapper}>
-      <ReactFlowProvider>
         <ReactFlow
           nodeTypes={nodeTypes}
-          {...reactFlowProps}
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
           onDrop={onDrop}
           onDragOver={onDragOver}
           onInit={setReactFlowInstance}
+          onNodeClick={(e, node) => {
+            setSelectedNodeId(node.id);
+          }}
         >
           <MiniMap />
           <Controls />
           <Background />
         </ReactFlow>
-      </ReactFlowProvider>
     </div>
   );
 };

@@ -1,12 +1,12 @@
 import Layout from "components/Layout";
-import { MLFlowContextProvider } from "context/MLFlowContext";
+import { ReactFlowProvider } from "react-flow-renderer";
 
 function App() {
   return (
     <div className="App">
-      <MLFlowContextProvider>
-        <Layout />
-      </MLFlowContextProvider>
+        <ReactFlowProvider>
+          <Layout />
+        </ReactFlowProvider>
     </div>
   );
 }

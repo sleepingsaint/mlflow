@@ -18,6 +18,8 @@ interface MLFlowState {
     onNodesChange: (changes: NodeChange[]) => void,
     onEdgesChange: (changes: EdgeChange[]) => void,
     onConnect: (connection: Connection) => void,
+    selectedNodeId?: string,
+    setSelectedNodeId: React.Dispatch<React.SetStateAction<string | undefined>>;
 }
 
 // MLFlow Context object
@@ -28,13 +30,15 @@ export const MLFlowContext = createContext<MLFlowState>({
     setEdges: () => {},
     onNodesChange: (changes) => {},
     onEdgesChange: (changes) => {},
-    onConnect: (conn) => {}
+    onConnect: (conn) => {},
+    setSelectedNodeId: (node) => {}
 });
 
 // Context Provider object
 export const MLFlowContextProvider: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ children }) => {
     const [nodes, setNodes] = useState<Node[]>([]);
     const [edges, setEdges] = useState<Edge[]>([]);
+    const [selectedNodeId, setSelectedNodeId] = useState<string>();
 
     const onNodesChange = (changes: NodeChange[]) => {
         setNodes((_nodes) => applyNodeChanges(changes, _nodes));
@@ -59,7 +63,9 @@ export const MLFlowContextProvider: React.FC<React.HTMLAttributes<HTMLDivElement
                 setEdges,
                 onNodesChange,
                 onEdgesChange,
-                onConnect
+                onConnect,
+                selectedNodeId,
+                setSelectedNodeId
             }}
         >
             {children}
