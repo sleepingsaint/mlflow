@@ -1,14 +1,14 @@
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { useMLFlowStore } from "hooks/useMLFlowStore";
 import { modules } from "components/modules";
-import ReactFlow, { MiniMap, Controls, Background, ReactFlowInstance } from "react-flow-renderer";
+import ReactFlow, { MiniMap, Controls, Background, ReactFlowInstance, ReactFlowProvider } from "react-flow-renderer";
 import { getNewNode } from "utils";
 
 const MLFlowContainer: React.FC<React.HTMLAttributes<HTMLDivElement>> = (props) => {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance>();
   const nodeTypes = useMemo(() => modules, []);
-  const {nodes, setNodes, setSelectedNodeId, edges, onNodesChange, onEdgesChange, onConnect} = useMLFlowStore()
+  const { nodes, addNode, setSelectedNodeId, edges, onNodesChange, onEdgesChange, onConnect } = useMLFlowStore();
 
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
@@ -34,15 +34,16 @@ const MLFlowContainer: React.FC<React.HTMLAttributes<HTMLDivElement>> = (props) 
         });
 
         const newNode = getNewNode(type, position);
-        setNodes([...nodes, newNode]);
-        // setNodes(newNode => [...nodes, newNode]);
+        console.log(nodes, newNode)
+        addNode(newNode);
       }
     },
     [reactFlowInstance]
   );
 
   return (
-    <div {...props} ref={reactFlowWrapper}>
+    <ReactFlowProvider>
+      <div {...props} ref={reactFlowWrapper}>
         <ReactFlow
           nodeTypes={nodeTypes}
           nodes={nodes}
@@ -61,7 +62,8 @@ const MLFlowContainer: React.FC<React.HTMLAttributes<HTMLDivElement>> = (props) 
           <Controls />
           <Background />
         </ReactFlow>
-    </div>
+      </div>
+    </ReactFlowProvider>
   );
 };
 
